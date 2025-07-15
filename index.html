@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Leaderboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .medal-gold {
+            background: linear-gradient(135deg, #FFD700 0%, #D4AF37 100%);
+        }
+        
+        .medal-silver {
+            background: linear-gradient(135deg, #C0C0C0 0%, #A8A8A8 100%);
+        }
+        
+        .medal-bronze {
+            background: linear-gradient(135deg, #CD7F32 0%, #A0522D 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <!-- Header -->
+            <header class="text-center mb-10">
+                <h1 class="text-4xl font-bold text-indigo-700 mb-2">Dynamic Leaderboard</h1>
+                <p class="text-gray-600">Claim points for users and watch the rankings change in real-time!</p>
+            </header>
+            
+            <!-- Main Content -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Left Panel - User Selection -->
+                <div class="lg:col-span-1 bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">User Selection</h2>
+                    
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Select User</label>
+                        <div class="relative">
+                            <select id="userSelect" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                <option value="" disabled selected>Choose a user</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Add New User</label>
+                        <div class="flex">
+                            <input type="text" id="newUserName" placeholder="Enter name" class="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            <button id="addUserBtn" class="bg-indigo-600 text-white px-4 py-2 rounded-r-lg hover:bg-indigo-700 transition">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <button id="claimBtn" class="w-full bg-green-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-green-700 transition flex items-center justify-center gap-2 pulse">
+                        <i class="fas fa-gift"></i>
+                        Claim Points
+                    </button>
+                    
+                    <div id="claimResult" class="mt-4 text-center text-lg font-medium hidden"></div>
+                </div>
+                
+                <!-- Right Panel - Leaderboard -->
+                <div class="lg:col-span-2 bg-white rounded-xl shadow-md p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-semibold text-gray-800">Leaderboard</h2>
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm text-gray-500">Last updated:</span>
+                            <span id="lastUpdated" class="text-sm font-medium">Just now</span>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rank</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Points</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">History</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leaderboardBody" class="bg-white divide-y divide-gray-200">
+                                <!-- Leaderboard rows will be inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- History Modal -->
+                    <div id="historyModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+                        <div class="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[80vh] overflow-hidden">
+                            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                                <h3 class="text-lg font-medium text-gray-900">Point History</h3>
+                                <button id="closeHistoryModal" class="text-gray-400 hover:text-gray-500">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="px-6 py-4 overflow-y-auto">
+                                <ul id="historyList" class="divide-y divide-gray-200">
+                                    <!-- History items will be inserted here -->
+                                <!-- </ul> -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mock database
+        let users = [
+            { id: 1, name: "Rahul", points: 0 },
+            { id: 2, name: "Kamal", points: 0 },
+            { id: 3, name: "Sanak", points: 0 },
+            { id: 4, name: "Priya", points: 0 },
+            { id: 5, name: "Amit", points: 0 },
+            { id: 6, name: "Neha", points: 0 },
+            { id: 7, name: "Vikram", points: 0 },
+            { id: 8, name: "Suman", points: 0 },
+            { id: 9, name: "Arjun", points: 0 },
+            { id: 10, name: "Divya", points: 0 }
+        ];
+        
+        let pointHistory = [];
+        let nextUserId = 11;
+        
+        // DOM elements
+        const userSelect = document.getElementById('userSelect');
+        const newUserName = document.getElementById('newUserName');
+        const addUserBtn = document.getElementById('addUserBtn');
+        const claimBtn = document.getElementById('claimBtn');
+        const claimResult = document.getElementById('claimResult');
+        const leaderboardBody = document.getElementById('leaderboardBody');
+        const lastUpdated = document.getElementById('lastUpdated');
+        const historyModal = document.getElementById('historyModal');
+        const closeHistoryModal = document.getElementById('closeHistoryModal');
+        const historyList = document.getElementById('historyList');
+        
+        // Initialize the app
+        function init() {
+            populateUserSelect();
+            updateLeaderboard();
+            updateLastUpdated();
+            
+            // Event listeners
+            addUserBtn.addEventListener('click', addNewUser);
+            claimBtn.addEventListener('click', claimPoints);
+            closeHistoryModal.addEventListener('click', () => {
+                historyModal.classList.add('hidden');
+            });
+        }
+        
+        // Populate user select dropdown
+        function populateUserSelect() {
+            userSelect.innerHTML = '<option value="" disabled selected>Choose a user</option>';
+            users.forEach(user => {
+                const option = document.createElement('option');
+                option.value = user.id;
+                option.textContent = user.name;
+                userSelect.appendChild(option);
+            });
+        }
+        
+        // Add new user
+        function addNewUser() {
+            const name = newUserName.value.trim();
+            if (name) {
+                const newUser = {
+                    id: nextUserId++,
+                    name: name,
+                    points: 0
+                };
+                users.push(newUser);
+                populateUserSelect();
+                updateLeaderboard();
+                newUserName.value = '';
+                
+                // Select the newly added user
+                userSelect.value = newUser.id;
+                
+                // Show success message
+                showClaimResult(`User "${name}" added successfully!`, 'text-green-600');
+            }
+        }
+        
+        // Claim points for selected user
+        function claimPoints() {
+            const userId = parseInt(userSelect.value);
+            if (!userId) {
+                showClaimResult('Please select a user first!', 'text-red-600');
+                return;
+            }
+            
+            // Generate random points (1-10)
+            const points = Math.floor(Math.random() * 10) + 1;
+            
+            // Find user and update points
+            const user = users.find(u => u.id === userId);
+            if (user) {
+                user.points += points;
+                
+                // Add to history
+                const historyEntry = {
+                    userId: user.id,
+                    userName: user.name,
+                    points: points,
+                    timestamp: new Date().toISOString()
+                };
+                pointHistory.push(historyEntry);
+                
+                // Update UI
+                updateLeaderboard();
+                updateLastUpdated();
+                showClaimResult(`Awarded ${points} points to ${user.name}!`, 'text-green-600');
+                
+                // In a real app, here you would make an API call to your Node.js backend
+                // fetch('/api/claim-points', {
+                //     method: 'POST',
+                //     headers: { 'Content-Type': 'application/json' },
+                //     body: JSON.stringify({ userId, points })
+                // })
+                // .then(response => response.json())
+                // .then(data => {
+                //     // Update UI with response
+                // });
+            }
+        }
+        
+        // Update leaderboard
+        function updateLeaderboard() {
+            // Sort users by points (descending)
+            const sortedUsers = [...users].sort((a, b) => b.points - a.points);
+            
+            leaderboardBody.innerHTML = '';
+            
+            sortedUsers.forEach((user, index) => {
+                const rank = index + 1;
+                const row = document.createElement('tr');
+                row.className = 'fade-in';
+                
+                // Rank cell with medal styling for top 3
+                let rankCellClass = 'px-6 py-4 whitespace-nowrap text-sm font-medium ';
+                let rankCellContent = rank;
+                
+                if (rank === 1) {
+                    rankCellClass += 'medal-gold text-white rounded-l-full pl-8';
+                    rankCellContent = `<i class="fas fa-trophy mr-2"></i> ${rank}`;
+                } else if (rank === 2) {
+                    rankCellClass += 'medal-silver text-white rounded-l-full pl-8';
+                    rankCellContent = `<i class="fas fa-medal mr-2"></i> ${rank}`;
+                } else if (rank === 3) {
+                    rankCellClass += 'medal-bronze text-white rounded-l-full pl-8';
+                    rankCellContent = `<i class="fas fa-medal mr-2"></i> ${rank}`;
+                } else {
+                    rankCellClass += 'text-gray-900';
+                }
+                
+                row.innerHTML = `
+                    <td class="${rankCellClass}">${rankCellContent}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                                <span class="text-indigo-800 font-bold">${user.name.charAt(0)}</span>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">${user.name}</div>
+                                <div class="text-sm text-gray-500">ID: ${user.id}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900 font-bold">${user.points}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <button onclick="showUserHistory(${user.id})" class="text-indigo-600 hover:text-indigo-900">
+                            <i class="fas fa-history mr-1"></i> View
+                        </button>
+                    </td>
+                `;
+                
+                leaderboardBody.appendChild(row);
+            });
+        }
+        
+        // Show claim result message
+        function showClaimResult(message, colorClass) {
+            claimResult.textContent = message;
+            claimResult.className = 'mt-4 text-center text-lg font-medium ' + colorClass;
+            claimResult.classList.remove('hidden');
+            
+            setTimeout(() => {
+                claimResult.classList.add('hidden');
+            }, 3000);
+        }
+        
+        // Update last updated timestamp
+        function updateLastUpdated() {
+            const now = new Date();
+            lastUpdated.textContent = now.toLocaleTimeString();
+        }
+        
+        // Show user history
+        function showUserHistory(userId) {
+            const user = users.find(u => u.id === userId);
+            if (!user) return;
+            
+            const userHistory = pointHistory.filter(entry => entry.userId === userId);
+            
+            historyList.innerHTML = '';
+            
+            if (userHistory.length === 0) {
+                historyList.innerHTML = '<li class="py-4 text-center text-gray-500">No history available</li>';
+            } else {
+                userHistory.forEach(entry => {
+                    const date = new Date(entry.timestamp);
+                    const li = document.createElement('li');
+                    li.className = 'py-4';
+                    li.innerHTML = `
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                                    <i class="fas fa-plus text-green-600 text-xs"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">+${entry.points} points</p>
+                                    <p class="text-xs text-gray-500">${date.toLocaleString()}</p>
+                                </div>
+                            </div>
+                            <div class="text-sm text-gray-500">${user.name}</div>
+                        </div>
+                    `;
+                    historyList.appendChild(li);
+                });
+            }
+            
+            historyModal.classList.remove('hidden');
+        }
+        
+        // Make showUserHistory available globally
+        window.showUserHistory = showUserHistory;
+        
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
