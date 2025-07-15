@@ -6,7 +6,7 @@ import { FaPlus, FaGift } from "react-icons/fa";
 import { MyContext } from '../../App';
 
 const Sidebar = () => {
-    let { users, setUsers, setPointsHistory, pointsHistory } = useContext(MyContext);
+    let { users, setUsers, setPointsHistory, pointsHistory, setLastUpdate } = useContext(MyContext);
     // console.log(pointsHistory)
     let [selectedId, setSelectedId] = useState("");
     let nameRef = useRef();
@@ -69,6 +69,8 @@ const Sidebar = () => {
         newArr.splice(idx, 1, updatedUser);
         newArr.sort((a, b) => b.points - a.points)
         setUsers(newArr);
+        let date = new Date();
+        setLastUpdate(date.toLocaleTimeString())
         messageFn(`${updatedUser.name} earned ${randomNum} points 🎉`);
     }
     return (

@@ -8,9 +8,8 @@ import HistoryModel from './HistoryModel';
 
 
 const LeaderBoard = () => {
-    let { users, setUsers } = useContext(MyContext);
+    let { users, lastUpdate } = useContext(MyContext);
     let [show, setShow] = useState('');
-    let [onClose, setOnClose] = useState('');
     const handleShowUserHistory = (id) =>{
         setShow(id);
     }
@@ -20,7 +19,7 @@ const LeaderBoard = () => {
                 <h2 className="board-sub1-heading">Leaderboard</h2>
                 <div className="board-sub1-div">
                     <span className="update-time">Last updated:</span>
-                    <span className="last-update">Just now</span>
+                    <span className="last-update">{lastUpdate}</span>
                 </div>
             </div>
 

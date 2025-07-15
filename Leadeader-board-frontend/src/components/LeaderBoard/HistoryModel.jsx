@@ -46,7 +46,7 @@ const HistoryModel = ({ show, setShow }) => {
               </ul>
               :
               <ul className="history-list">
-                <li style={{ textAlign: "center" }}>No history available</li>
+                <li style={{ textAlign: "center", color: "gray" }}>No history available</li>
               </ul>
           }
         </div>

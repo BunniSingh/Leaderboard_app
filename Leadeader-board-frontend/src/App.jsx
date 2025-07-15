@@ -20,8 +20,10 @@ export let MyContext = createContext();
 const App = () => {
   let [users, setUsers] = useState(data)
   let [pointsHistory, setPointsHistory] = useState([]);
+  let date = new Date();
+  let [lastUpdate, setLastUpdate] = useState(date.toLocaleTimeString());
   return (
-    <MyContext.Provider value={{ users, setUsers, pointsHistory, setPointsHistory }}>
+    <MyContext.Provider value={{ users, setUsers, pointsHistory, setPointsHistory, lastUpdate, setLastUpdate }}>
       <div className='app-container'>
         <div className='app-container-sub'>
           <Header />
