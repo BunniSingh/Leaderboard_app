@@ -38,7 +38,7 @@ const LeaderBoard = () => {
                             .sort((a, b) => b.points - a.points) // sort by points DESC
                             .map((user, idx) => (
                                 <TableBody
-                                    key={user.id}
+                                    key={user._id}
                                     {...user}
                                     idx={idx}
                                     data={users}

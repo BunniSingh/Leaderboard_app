@@ -6,7 +6,7 @@ import { MyContext } from "../../App";
 
 const HistoryModel = ({ show, setShow }) => {
   let { pointsHistory } = useContext(MyContext);
-  let filterData = pointsHistory.filter(user => user.userId == show);
+  let filterData = pointsHistory.filter(user => user.userId._id == show);
   return (
     <div className={`modal-overlay ${show ? "show" : ""}`}>
       <div className="modal-box">
@@ -23,7 +23,7 @@ const HistoryModel = ({ show, setShow }) => {
                 {
                   filterData
                     .map((user, idx) => {
-                      let date = new Date(user.timestamp);
+                      let date = new Date(user.createdAt);
                       return (
                         <li key={`id_${idx}`}>
                           <div class="history-entry">
@@ -32,11 +32,11 @@ const HistoryModel = ({ show, setShow }) => {
                                 <FaPlus style={{color:'green'}}/>
                               </div>
                               <div>
-                                <p class="history-points">+{user.points} points</p>
+                                <p class="history-points">+{user.point} points</p>
                                 <p class="history-date">{date.toLocaleString()}</p>
                               </div>
                             </div>
-                            <div class="history-user">{user.name}</div>
+                            <div class="history-user">{user.userId.userName}</div>
                           </div>
 
                         </li>

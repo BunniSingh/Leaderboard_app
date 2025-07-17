@@ -10,7 +10,7 @@ let userSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
-    id: {
+    userId: {
         type: Number,
         required: true,
     },
@@ -18,4 +18,4 @@ let userSchema = new mongoose.Schema({
 },{timestamps: true})
 
 let UserModel = mongoose.model("User", userSchema);
-module.exports = userSchema;
+module.exports = UserModel;

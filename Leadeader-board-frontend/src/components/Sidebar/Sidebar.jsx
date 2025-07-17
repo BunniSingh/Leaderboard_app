@@ -4,10 +4,11 @@ import "./Sidebar.css"
 
 import { FaPlus, FaGift } from "react-icons/fa";
 import { MyContext } from '../../App';
+import axios from 'axios';
 
 const Sidebar = () => {
     let { users, setUsers, setPointsHistory, pointsHistory, setLastUpdate } = useContext(MyContext);
-    // console.log(pointsHistory)
+
     let [selectedId, setSelectedId] = useState("");
     let nameRef = useRef();
     let messageRef = useRef();
@@ -30,11 +31,15 @@ const Sidebar = () => {
             return;
         }
         let newUser = {
-            id: users.length + 1,
-            name,
-            points: 0,
+            userName: name,
+            points: 0
         }
-        setUsers([...users, newUser]);
+
+        // API
+        axios.post("/user/add", newUser)
+            .then(res => setUsers([...users, res.data.user]))
+            .catch(err => console.log(err))
+
         nameRef.current.value = "";
         messageFn(`User ${name.split(" ")[0].toUpperCase()} added successfuly✅`)
     }
@@ -44,34 +49,39 @@ const Sidebar = () => {
             return;
         }
         let randomNum = Math.floor(Math.random() * 10) + 1;
-        let idx = users.findIndex(user => user.id == selectedId);
-        // if(idx == '-1'){
-        //     messageFn('User not found!', "error");
-        //     return;
-        // }
+        let idx = users.findIndex(user => user.userId == selectedId);
+        if (idx == '-1') {
+            messageFn('User not found!', "error");
+            return;
+        }
         let user = users[idx];
+
+        //update user
+        let updateUserPoint = {
+            userId: user._id,
+            point: randomNum,
+        }
+        // API 
+        axios.post('/user/update/point', updateUserPoint)
+            .then(res => {
+                axios.get('/user')
+                    .then(res => setUsers([...res.data.data]))
+                    .catch(err => console.log("Error while get users data: ", err));
+            }).catch(err => console.log("While updating point in user List", err));
 
         //Update Points History
         const historyEntry = {
-            userId: user.id,
-            name: user.name,
-            points: randomNum,
-            timestamp: new Date().toISOString()
+            userId: user._id,
+            point: randomNum,
         };
-        setPointsHistory([...pointsHistory, historyEntry]);
+        // API 
+        axios.post('/point/history/create', historyEntry)
+            .then(res => setPointsHistory([...pointsHistory, res.data.createdHistory]))
+            .catch(err => console.log("Error while updateing point history :", err))
 
-        //update user
-        let updatedUser = {
-            ...user,
-            points: Number(user.points) + randomNum
-        }
-        let newArr = [...users];
-        newArr.splice(idx, 1, updatedUser);
-        newArr.sort((a, b) => b.points - a.points)
-        setUsers(newArr);
-        let date = new Date();
-        setLastUpdate(date.toLocaleTimeString())
-        messageFn(`${updatedUser.name} earned ${randomNum} points 🎉`);
+        
+
+        messageFn(`${user.userName} earned ${randomNum} points 🎉`);
     }
     return (
         <div className='sidebar-container'>
@@ -82,7 +92,7 @@ const Sidebar = () => {
                 <div className="dropdown-user-div">
                     <select value={selectedId} onChange={(e) => setSelectedId(e.target.value)} className="dropdown-user-select" defaultValue="">
                         <option value="" disabled>Choose a user</option>
-                        {users.map(user => <option key={user.id} value={user.id}>{user.name}</option>)}
+                        {users.map(user => <option key={user._id} value={user.userId}>{user.userName}</option>)}
                     </select>
 
                 </div>
@@ -91,7 +101,7 @@ const Sidebar = () => {
             <div className="sidebar-sub-2">
                 <label className="add-user">Add New User</label>
                 <div className="add-user-div">
-                    <input ref={nameRef} type="text" id="newUserName" placeholder="Enter name" className="add-user-input" />
+                    <input ref={nameRef} type="text" placeholder="Enter name" className="add-user-input" />
                     <button onClick={addNewUserFn} className="add-user-btn">
                         <FaPlus />
                     </button>

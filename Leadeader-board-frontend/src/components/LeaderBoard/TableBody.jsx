@@ -22,20 +22,18 @@ const TableBody = (user) => {
             setRankCellContent(rank);
         }
     }, [rank]);
-    // const showUserHistory = (id) => {
-    //     console.log("History clicked for user id:", id);
-    // };
+    
     return (
         <tr className='fade-in'>
             <td className={style}>{rankCellContent}</td>
             <td className="cell-user">
                 <div className="user-wrapper">
                     <div className="user-avatar">
-                        <span className="user-initial">{user.name.charAt(0)}</span>
+                        <span className="user-initial">{user.userName.charAt(0)}</span>
                     </div>
                     <div className="user-info">
-                        <div className="user-name">{user.name}</div>
-                        <div className="user-id">ID: {user.id}</div>
+                        <div className="user-name">{user.userName}</div>
+                        <div className="user-id">ID: {user.userId}</div>
                     </div>
                 </div>
             </td>
@@ -45,7 +43,7 @@ const TableBody = (user) => {
             </td>
 
             <td className="cell-action">
-                <button onClick={() => user.showUserHistory(user.id)} className="btn-history">
+                <button onClick={() => user.showUserHistory(user._id)} className="btn-history">
                     <FaHistory /> View
                 </button>
             </td>
