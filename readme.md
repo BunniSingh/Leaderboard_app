@@ -6,8 +6,9 @@ A full-stack **Leaderboard App** built using **React**, **Node.js**, **Express**
 
 ## 🔗 Live Links
 
-- **Frontend (Vercel)**: [https://leaderboard-app-sigma.vercel.app](https://leaderboard-app-sigma.vercel.app)
-- **Backend (Render)**: [https://leaderboard-backend-xyz.onrender.com](https://leaderboard-backend-xyz.onrender.com)
+- **Frontend (Vercel)**: [Click here](https://leaderboard-app-sigma.vercel.app)
+- **Backend (Render)**: [Click here](https://leaderboard-app-o986.onrender.com/api/v1
+)
 
 ---
 
