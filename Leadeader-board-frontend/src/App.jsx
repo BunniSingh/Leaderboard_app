@@ -5,6 +5,7 @@ import LeaderBoard from './components/LeaderBoard/LeaderBoard'
 import "./App.css"
 import axios from "axios";
 import { useEffect } from 'react'
+import { getLatestUpdateTime } from './utils/getLatestupdatedTime'
 
 axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
 axios.defaults.withCredentials = true;
@@ -17,6 +18,7 @@ const App = () => {
   useEffect(()=> {
     axios.get('/user')
     .then(res => setUsers(res.data.data))
+    .then(()=> setLastUpdate(getLatestUpdateTime(users)))
     .catch(err => console.log("Error while get all users: ", err))
   },[]);
 
@@ -26,11 +28,14 @@ const App = () => {
     .catch(err => console.log("Error while get all the points history: ", err))
   },[]);
 
-  // console.log(users);
-  // console.log(".............................................");
-  // console.log(pointsHistory);
+  useEffect(() => {
+  if (users.length > 0) {
+    setLastUpdate(getLatestUpdateTime(users));
+  }
+}, [users]);
+
   return (
-    <MyContext.Provider value={{ users, setUsers, pointsHistory, setPointsHistory, lastUpdate, setLastUpdate }}>
+    <MyContext.Provider value={{ users, setUsers, pointsHistory, setPointsHistory, lastUpdate }}>
       <div className='app-container'>
         <div className='app-container-sub'>
           <Header />

@@ -30,8 +30,7 @@ let createPointHistory = async (req, res) => {
 let getAllHistory = async (req, res) => {
   try {
     let data = await PointsHistoryModel.find()
-      .populate("userId", "userName createdAt")
-      .sort({ createdAt: -1 });
+      .populate("userId", "userName createdAt");
 
     res.status(201).json({
       success: true,

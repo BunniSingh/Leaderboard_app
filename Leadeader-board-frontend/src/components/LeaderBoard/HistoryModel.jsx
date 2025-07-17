@@ -26,17 +26,17 @@ const HistoryModel = ({ show, setShow }) => {
                       let date = new Date(user.createdAt);
                       return (
                         <li key={`id_${idx}`}>
-                          <div class="history-entry">
-                            <div class="history-left">
-                              <div class="history-icon">
+                          <div className="history-entry">
+                            <div className="history-left">
+                              <div className="history-icon">
                                 <FaPlus style={{color:'green'}}/>
                               </div>
                               <div>
-                                <p class="history-points">+{user.point} points</p>
-                                <p class="history-date">{date.toLocaleString()}</p>
+                                <p className="history-points">+{user.point} points</p>
+                                <p className="history-date">{date.toLocaleString()}</p>
                               </div>
                             </div>
-                            <div class="history-user">{user.userId.userName}</div>
+                            <div className="history-user">{user.userId.userName}</div>
                           </div>
 
                         </li>

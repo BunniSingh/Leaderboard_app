@@ -1,13 +1,11 @@
 import React, { useContext, useRef, useState } from 'react'
 import "./Sidebar.css"
-
-
 import { FaPlus, FaGift } from "react-icons/fa";
 import { MyContext } from '../../App';
 import axios from 'axios';
 
 const Sidebar = () => {
-    let { users, setUsers, setPointsHistory, pointsHistory, setLastUpdate } = useContext(MyContext);
+    let { users, setUsers, setPointsHistory, pointsHistory } = useContext(MyContext);
 
     let [selectedId, setSelectedId] = useState("");
     let nameRef = useRef();
@@ -42,6 +40,7 @@ const Sidebar = () => {
 
         nameRef.current.value = "";
         messageFn(`User ${name.split(" ")[0].toUpperCase()} added successfuly✅`)
+
     }
     const claimBtnClick = () => {
         if (!selectedId) {
@@ -78,8 +77,6 @@ const Sidebar = () => {
         axios.post('/point/history/create', historyEntry)
             .then(res => setPointsHistory([...pointsHistory, res.data.createdHistory]))
             .catch(err => console.log("Error while updateing point history :", err))
-
-        
 
         messageFn(`${user.userName} earned ${randomNum} points 🎉`);
     }
